@@ -1,0 +1,108 @@
+
+ciscoasa# sh startup
+: Saved
+: Written by enable_15 at 11:41:23.939 UTC Thu Apr 2 2015
+!
+ASA Version 8.2(5)
+!
+hostname ciscoasa
+enable password 8Ry2YjIyt7RRXU24 encrypted
+passwd 2KFQnbNIdI.2KYOU encrypted
+names
+!
+interface Ethernet0/0
+ switchport access vlan 2
+!
+interface Ethernet0/1
+!
+interface Ethernet0/2
+!
+interface Ethernet0/3
+!
+interface Ethernet0/4
+!
+interface Ethernet0/5
+!
+interface Ethernet0/6
+!
+interface Ethernet0/7
+!
+interface Vlan1
+ nameif inside
+ security-level 100
+ ip address 192.168.1.1 255.255.255.0
+!
+interface Vlan2
+ nameif outside
+ security-level 0
+ ip address dhcp setroute
+!
+ftp mode passive
+pager lines 24
+logging asdm informational
+mtu outside 1500
+mtu inside 1500
+icmp unreachable rate-limit 1 burst-size 1
+no asdm history enable
+arp timeout 14400
+global (outside) 1 interface
+nat (inside) 1 0.0.0.0 0.0.0.0
+timeout xlate 3:00:00
+timeout conn 1:00:00 half-closed 0:10:00 udp 0:02:00 icmp 0:00:02
+timeout sunrpc 0:10:00 h323 0:05:00 h225 1:00:00 mgcp 0:05:00 mgcp-pat 0:05:00
+timeout sip 0:30:00 sip_media 0:02:00 sip-invite 0:03:00 sip-disconnect 0:02:00
+timeout sip-provisional-media 0:02:00 uauth 0:05:00 absolute
+timeout tcp-proxy-reassembly 0:01:00
+timeout floating-conn 0:00:00
+dynamic-access-policy-record DfltAccessPolicy
+http server enable
+http 192.168.1.0 255.255.255.0 inside
+no snmp-server location
+no snmp-server contact
+snmp-server enable traps snmp authentication linkup linkdown coldstart
+crypto ipsec security-association lifetime seconds 28800
+crypto ipsec security-association lifetime kilobytes 4608000
+telnet timeout 5
+ssh timeout 5
+console timeout 0
+dhcpd auto_config outside
+!
+dhcpd address 192.168.1.5-192.168.1.36 inside
+dhcpd enable inside
+!
+
+threat-detection basic-threat
+threat-detection statistics access-list
+no threat-detection statistics tcp-intercept
+webvpn
+!
+class-map inspection_default
+ match default-inspection-traffic
+!
+!
+policy-map type inspect dns preset_dns_map
+ parameters
+  message-length maximum client auto
+  message-length maximum 512
+policy-map global_policy
+ class inspection_default
+  inspect dns preset_dns_map
+  inspect ftp
+  inspect h323 h225
+  inspect h323 ras
+  inspect rsh
+  inspect rtsp
+  inspect esmtp
+  inspect sqlnet
+  inspect skinny
+  inspect sunrpc
+  inspect xdmcp
+  inspect sip
+  inspect netbios
+  inspect tftp
+  inspect ip-options
+!
+service-policy global_policy global
+prompt hostname context
+Cryptochecksum:20152f7f13f4b686a010769cd55daef5
+ciscoasa#
